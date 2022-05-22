@@ -1,129 +1,97 @@
-//
-// Created by NIHAAL on 5/1/2022.
-//
+/*
+Experiment 6 : There are flight paths between cities. If there is a flight between City A and City B then there is an edge between the cities. 
+The cost of the edge can be the time that flight take to reach city B from A, or the amount of fuel used for the journey. Represent this as a graph.
+The node can be represented by the airport name or name of the city. Use adjacency list representation of the graph or use adjacency matrix representation of the graph.
+*/
 
-#include<iostream>
-
+#include <iostream>
+#include <queue>
 using namespace std;
-const int MAX = 30;
 
-class node {
-    node *next;
-    string city;
-    int timeCost;
-public:
-    friend class graph;
+int adj_mat[50][50] = {0, 0};
+int visited[50] = {0};
 
-    node() {
-        next = nullptr;
-        city = "";
-        timeCost = -1;
+void dfs(int s, int n, string arr[])
+{
+    visited[s] = 1;
+    cout << arr[s] << " ";
+    for (int i = 0; i < n; i++)
+    {
+        if (adj_mat[s][i] && !visited[i])
+            dfs(i, n, arr);
     }
-
-    node(string city, int weight) {
-        next = nullptr;
-        this->city = city;
-        timeCost = weight;
-    }
-};
-
-class graph {
-    node *head[MAX];
-    int n;
-public:
-    graph(int num) {
-        n = num;
-        for (int i = 0; i < n; i++)
-            head[i] = nullptr;
-    }
-
-    void insert(string city1, string city2, int time1);
-
-    void readdata();
-
-    int getindex(string s1);
-
-    void display();
-
-};
-
-int graph::getindex(string s1) {
-    for (int i = 0; i < n; i++) {
-        if (head[i]->city == s1)
-            return i;
-    }
-    return -1;
 }
 
-void graph::insert(string city1, string city2, int time1) {
-    node *source;
-    node *dest = new node(city2, time1);
-    int ind = getindex(city1); //for getting head nodes index in array
-    source = head[ind];
-    while (source->next != nullptr)
-        source = source->next;
-    source->next = dest;
-}
-
-void graph::display() {
-    node *source;
-    for (int i = 0; i < n; i++) {
-        source = head[i];
-        while (source != nullptr) {
-            cout << source->city << "->";
-            source = source->next;
+void bfs(int s, int n, string arr[])
+{
+    bool visited[n];
+    for (int i = 0; i < n; i++)
+        visited[i] = false;
+    int v;
+    queue<int> bfsq;
+    if (!visited[s])
+    {
+        cout << arr[s] << " ";
+        bfsq.push(s);
+        visited[s] = true;
+        while (!bfsq.empty())
+        {
+            v = bfsq.front();
+            for (int i = 0; i < n; i++)
+            {
+                if (adj_mat[v][i] && !visited[i])
+                {
+                    cout << arr[i] << " ";
+                    visited[i] = true;
+                    bfsq.push(i);
+                }
+            }
+            bfsq.pop();
         }
-        cout << "nullptr" << endl;
     }
 }
 
-void graph::readdata() {
-    string city1, city2, tmpcity;
-    int fcost;
-    int flight;
-    cout << "\nEnter City Details:\n";
-    for (int i = 0; i < n; i++) {
-        head[i] = new node;
-        cout << "Enter name of city " << i + 1 << " ";
-        cin >> head[i]->city;
+int main()
+{
+    cout << "Enter no. of cities: ";
+    int n, u;
+    cin >> n;
+    string cities[n];
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Enter city #" << i << " (Airport Code): ";
+        cin >> cities[i];
     }
-    cout << "\nEnter Number of Flights to insert: ";
-    cin >> flight;
-    for (int i = 0; i < flight; i++) {
-        cout << "\nEnter Source:";
-        cin >> city1;
-        cout << "Enter Destination:";
-        cin >> city2;
-        cout << "Enter Time:";
-        cin >> fcost;
-        insert(city1, city2, fcost);
-
-    }
-}
-
-int main() {
-    int number, choice;
-    cout << "\nEnter Number of Airport Stations:";
-    cin >> number;
-    graph g1(number);
-    do {
-        cout << "------Menu------" << "\n1.Insert Flight detail" << "\n2.Display" << "\n3.Exit"
-             << "\nEnter your choice: ";
-        cin >> choice;
-        switch (choice) {
-            case 1:
-                g1.readdata();
-                break;
-            case 2:
-                cout << "**Adjacency List**" << endl;
-                g1.display();
-                break;
-            case 3:
-                cout << "Exitting..." << endl;
-                exit(0);
-            default:
-                cout << "\nWrong Choice";
+    
+    cout << "\nYour cities are: " << endl;
+    for (int i = 0; i < n; i++)
+        cout << "city #" << i << ": " << cities[i] << endl;
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = i + 1; j < n; j++)
+        {
+            cout << "Enter distance between " << cities[i] << " and " << cities[j] << " : ";
+            cin >> adj_mat[i][j];
+            adj_mat[j][i] = adj_mat[i][j];
         }
-    } while (choice != 3);
+    }
+    cout << endl;
+    for (int i = 0; i < n; i++)
+        cout << "\t" << cities[i] << "\t";
+    for (int i = 0; i < n; i++)
+    {
+        cout << "\n"
+             << cities[i];
+        for (int j = 0; j < n; j++)
+            cout << "\t" << adj_mat[i][j] << "\t";
+        cout << endl;
+    }
+    cout << "Enter Starting Vertex: ";
+    cin >> u;
+    cout << "DFS: ";
+    dfs(u, n, cities);
+    cout << endl;
+    cout << "BFS: ";
+    bfs(u, n, cities);
     return 0;
 }
